@@ -1,80 +1,111 @@
 <template>
-    <article class="slds-card slds-card_boundary">
-        <div class="slds-card__header slds-grid">
-            <header class="slds-media slds-media_center slds-has-flexi-truncate">
-                <div class="slds-media__figure">
-                    <lightning-icon icon-name="standard:case" size="small"></lightning-icon>
-                </div>
-                <div class="slds-media__body">
-                    <h2 class="slds-card__header-title">Cases ({totalCount})</h2>
-                </div>
-            </header>
+  <article class="slds-card slds-card_boundary">
+    <div class="slds-card__header slds-grid">
+      <header class="slds-media slds-media_center slds-has-flexi-truncate">
+        <div class="slds-media__figure">
+          <lightning-icon
+            icon-name="standard:case"
+            size="small"
+          ></lightning-icon>
         </div>
-        <div class="slds-card__body slds-card__body_inner">
-            <template lwc:if={showControls}>
-                <lightning-input
-                    type="search"
-                    label="Search by case number"
-                    variant="label-hidden"
-                    placeholder="Search by case number"
-                    value={searchTerm}
-                    onchange={handleSearch}
-                    class="slds-m-bottom_small"
-                ></lightning-input>
-            </template>
+        <div class="slds-media__body">
+          <h2 class="slds-card__header-title">Cases ({totalCount})</h2>
+        </div>
+      </header>
+    </div>
+    <div class="slds-card__body slds-card__body_inner">
+      <template lwc:if={showControls}>
+        <lightning-input
+          type="search"
+          label="Search by case number"
+          variant="label-hidden"
+          placeholder="Search by case number"
+          value={searchTerm}
+          onchange={handleSearch}
+          class="slds-m-bottom_small"
+        ></lightning-input>
+      </template>
 
-            <template lwc:if={hasResults}>
-                <ul class="slds-has-dividers_bottom-space">
-                    <template for:each={visibleCases} for:item="c">
-                        <li key={c.caseNumber} class="slds-item">
-                            <div class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center">
-                                <span class="slds-text-title_bold">Case {c.caseNumber}</span>
-                                <span class={c.badgeClass}>{c.status}</span>
-                            </div>
-                            <template lwc:if={c.subject}>
-                                <div class="slds-truncate" title={c.subject}>{c.subject}</div>
-                            </template>
-                            <div class="slds-text-body_small slds-text-color_weak">
-                                Last updated
-                                <template lwc:if={c.lastUpdated}>
-                                    <lightning-formatted-date-time
-                                        value={c.lastUpdated}
-                                        year="numeric"
-                                        month="short"
-                                        day="2-digit"
-                                        hour="2-digit"
-                                        minute="2-digit"
-                                    ></lightning-formatted-date-time>
-                                </template>
-                                <template lwc:else>—</template>
-                            </div>
-                        </li>
-                    </template>
-                </ul>
-            </template>
-            <template lwc:else>
-                <p class="slds-text-color_weak slds-p-vertical_small">No cases match "{searchTerm}".</p>
-            </template>
-        </div>
-        <template lwc:if={showControls}>
-            <footer class="slds-card__footer slds-grid slds-grid_align-spread slds-grid_vertical-align-center">
-                <lightning-button
-                    label="Previous"
-                    icon-name="utility:chevronleft"
-                    disabled={isFirstPage}
-                    onclick={handlePrevious}
-                ></lightning-button>
-                <span class="slds-text-body_small slds-text-color_weak">
-                    <template lwc:if={hasResults}>{rangeLabel} · </template>{pageLabel}
+      <template lwc:if={hasResults}>
+        <ul class="slds-has-dividers_bottom-space">
+          <template for:each={visibleCases} for:item="c">
+            <li key={c.caseNumber} class={c.rowClass}>
+              <div
+                class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center"
+              >
+                <span class="slds-text-title_bold">Case {c.caseNumber}</span>
+                <span class="slds-grid slds-grid_vertical-align-center">
+                  <span class={c.badgeClass}>{c.status}</span>
+                  <template lwc:if={showControls}>
+                    <lightning-button
+                      class="slds-m-left_x-small"
+                      label={c.selectLabel}
+                      variant={c.selectVariant}
+                      icon-name={c.selectIcon}
+                      value={c.caseNumber}
+                      title="Use this case for the rest of the conversation"
+                      disabled={selectDisabled}
+                      onclick={handleSelect}
+                    ></lightning-button>
+                  </template>
                 </span>
-                <lightning-button
-                    label="Next"
-                    icon-name="utility:chevronright"
-                    icon-position="right"
-                    disabled={isLastPage}
-                    onclick={handleNext}
-                ></lightning-button>
-            </footer>
-        </template>
-    </article>
+              </div>
+              <template lwc:if={c.subject}>
+                <div class="slds-truncate" title={c.subject}>{c.subject}</div>
+              </template>
+              <div class="slds-text-body_small slds-text-color_weak">
+                Last updated
+                <template lwc:if={c.lastUpdated}>
+                  <lightning-formatted-date-time
+                    value={c.lastUpdated}
+                    year="numeric"
+                    month="short"
+                    day="2-digit"
+                    hour="2-digit"
+                    minute="2-digit"
+                  ></lightning-formatted-date-time>
+                </template>
+                <template lwc:else>—</template>
+              </div>
+            </li>
+          </template>
+        </ul>
+      </template>
+      <template lwc:else>
+        <p class="slds-text-color_weak slds-p-vertical_small">
+          No cases match "{searchTerm}".
+        </p>
+      </template>
+      <template lwc:if={selectError}>
+        <p
+          class="slds-text-color_error slds-text-body_small slds-m-top_x-small"
+        >
+          Couldn't select that case. Please type the case number in the message
+          box.
+        </p>
+      </template>
+    </div>
+    <template lwc:if={showControls}>
+      <footer
+        class="slds-card__footer slds-grid slds-grid_align-spread slds-grid_vertical-align-center"
+      >
+        <lightning-button
+          label="Previous"
+          icon-name="utility:chevronleft"
+          disabled={isFirstPage}
+          onclick={handlePrevious}
+        ></lightning-button>
+        <span class="slds-text-body_small slds-text-color_weak">
+          <template lwc:if={hasResults}>{rangeLabel} · </template>{pageLabel}
+        </span>
+        <lightning-button
+          label="Next"
+          icon-name="utility:chevronright"
+          icon-position="right"
+          disabled={isLastPage}
+          onclick={handleNext}
+        ></lightning-button>
+      </footer>
+    </template>
+  </article>
 </template>

@@ -14,9 +14,14 @@ export default class CaseStatusCard extends LightningElement {
   // Enhanced Chat v2 can deliver it as a JSON string instead of an object.
   @api value;
 
+  // Injected by the Enhanced Chat v2 runtime; util.sendTextMessage posts a message as the customer.
+  @api configuration;
+
   // null until the user types, so the payload's searchTerm is used as the initial value.
   typedSearch = null;
   pageIndex = 0;
+  selectedCaseNumber;
+  selectError = false;
 
   get card() {
     const raw = this.value;
@@ -78,11 +83,26 @@ export default class CaseStatusCard extends LightningElement {
 
   get visibleCases() {
     const start = this.currentPage * PAGE_SIZE;
-    return this.filteredCases.slice(start, start + PAGE_SIZE).map((c) => ({
-      ...c,
-      status: c.status || "Unknown",
-      badgeClass: `slds-badge ${STATUS_VARIANTS[c.status] || ""}`.trim()
-    }));
+    return this.filteredCases.slice(start, start + PAGE_SIZE).map((c) => {
+      const isSelected = c.caseNumber === this.selectedCaseNumber;
+      return {
+        ...c,
+        status: c.status || "Unknown",
+        badgeClass: `slds-badge ${STATUS_VARIANTS[c.status] || ""}`.trim(),
+        rowClass: isSelected ? "slds-item case-row_selected" : "slds-item",
+        selectLabel: isSelected ? "Selected" : "Select",
+        selectVariant: isSelected ? "brand" : "neutral",
+        selectIcon: isSelected ? "utility:check" : ""
+      };
+    });
+  }
+
+  get canSelect() {
+    return typeof this.configuration?.util?.sendTextMessage === "function";
+  }
+
+  get selectDisabled() {
+    return !this.canSelect;
   }
 
   get hasResults() {
@@ -122,5 +142,28 @@ export default class CaseStatusCard extends LightningElement {
 
   handleNext() {
     this.pageIndex = Math.min(this.pageCount - 1, this.currentPage + 1);
+  }
+
+  // Sends the choice as a customer message; the agent looks the case up and keeps it
+  // as current_case_id for the rest of the conversation.
+  handleSelect(event) {
+    const caseNumber = event.target.value;
+    if (
+      !this.canSelect ||
+      !caseNumber ||
+      caseNumber === this.selectedCaseNumber
+    ) {
+      return;
+    }
+    this.selectedCaseNumber = caseNumber;
+    this.selectError = false;
+    Promise.resolve(
+      this.configuration.util.sendTextMessage(
+        `I want to continue with case ${caseNumber}`
+      )
+    ).catch(() => {
+      this.selectedCaseNumber = undefined;
+      this.selectError = true;
+    });
   }
 }
