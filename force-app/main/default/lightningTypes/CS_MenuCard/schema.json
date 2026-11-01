@@ -1,0 +1,5 @@
+{
+  "title": "Menu Card",
+  "description": "Welcome menu listing the topics the assistant can help with",
+  "lightning:type": "@apexClassType/c__CS_MenuCard"
+}

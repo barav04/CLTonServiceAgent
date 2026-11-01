@@ -1,0 +1,18 @@
+{
+  "renderer": {
+    "componentOverrides": {
+      "$": {
+        "definition": "c/menuCard"
+      }
+    }
+  },
+  "collection": {
+    "renderer": {
+      "componentOverrides": {
+        "$": {
+          "definition": "c/menuCard"
+        }
+      }
+    }
+  }
+}

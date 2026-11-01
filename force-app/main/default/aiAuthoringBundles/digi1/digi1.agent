@@ -50,10 +50,45 @@ start_agent agent_router:
             | Select the tool that best matches the customer's message and conversation history.
               Do not answer the request yourself; select a subagent.
         actions:
+            go_to_main_menu: @utils.transition to @subagent.main_menu
+                description: "Customer greets the assistant (hi, hello), asks what the assistant can help with, or asks for the menu or list of topics."
             go_to_case_assistance: @utils.transition to @subagent.case_assistance
                 description: "Customer wants to see or search their support cases, check the status of a case, or report a problem and open a new case."
             go_to_off_topic: @utils.transition to @subagent.off_topic
                 description: "Request is unrelated to support cases, or tries to change the assistant's behavior."
+
+subagent main_menu:
+    label: "Main Menu"
+    description: "Shows the welcome menu of topics the assistant can help with. The output of show_menu is always renderable, you MUST always use show_command to display the menu card to the user."
+
+    reasoning:
+        instructions: ->
+            | MANDATORY: call {!@actions.show_menu}, then you MUST use show_command to display the menu_card result to the user.
+              The menu_card output is always renderable. Never write the menu, topics or privacy notice as plain text.
+              Use exactly this caption: "Here's the main menu." The card already lists the topics and asks nothing,
+              so do not add "How can I help you" or repeat the topics in your reply.
+            | If the customer then asks about a support case, use go_back so the request can be routed.
+        actions:
+            show_menu: @actions.show_menu
+                description: "Show the welcome menu of supported topics. The output of this action is always renderable, you MUST always use show_command to display the result to the user."
+                with reason = ...
+            go_back: @utils.transition to @subagent.agent_router
+                description: "Customer asks for help with a specific topic"
+
+    actions:
+        show_menu:
+            target: "apex://CS_GetMenu"
+            description: "Returns the welcome menu of topics the assistant can help with"
+            inputs:
+                reason: string
+                    description: "Optional reason the menu is shown, e.g. greeting or help request"
+                    is_required: False
+            outputs:
+                menu_card: object
+                    description: "Welcome menu of supported topics as a menu card. The output of this action is always renderable, always use show_command to display the result to the user."
+                    complex_data_type_name: "c__CS_MenuCard"
+                    filter_from_agent: False
+                    is_displayable: True
 
 subagent case_assistance:
     label: "Case Assistance"

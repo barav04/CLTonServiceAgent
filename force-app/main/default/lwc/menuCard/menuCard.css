@@ -1,0 +1,132 @@
+:host {
+  --menu-brand: #0b5cab;
+  --menu-brand-dark: #032d60;
+  --menu-tint: #eef4ff;
+  --menu-border: #dfe3ea;
+  --menu-text: #181818;
+  --menu-muted: #5c6470;
+  display: block;
+}
+
+.menu {
+  overflow: hidden;
+  border: 1px solid var(--menu-border);
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 2px 6px rgba(3, 45, 96, 0.08);
+  color: var(--menu-text);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.menu__header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  background: linear-gradient(
+    135deg,
+    var(--menu-brand-dark),
+    var(--menu-brand)
+  );
+  color: #ffffff;
+}
+
+.menu__avatar {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.menu__title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.menu__subtitle {
+  margin: 2px 0 0;
+  font-size: 11px;
+  opacity: 0.85;
+}
+
+.menu__body {
+  padding: 12px 14px 14px;
+}
+
+.menu__intro {
+  margin: 0 0 10px;
+  color: var(--menu-muted);
+}
+
+.menu__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.menu__topic {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  padding: 8px;
+  border: 1px solid var(--menu-border);
+  border-radius: 8px;
+  background: #fafbfc;
+}
+
+.menu__topic-icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  background: var(--menu-tint);
+}
+
+.menu__topic-glyph {
+  --slds-c-icon-color-foreground-default: var(--menu-brand);
+}
+
+.menu__topic-label {
+  font-size: 12px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.menu__footer {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 10px 14px;
+  border-top: 1px solid var(--menu-border);
+  background: #f6f7f9;
+}
+
+.menu__footer-icon {
+  --slds-c-icon-color-foreground-default: var(--menu-muted);
+  margin-top: 2px;
+}
+
+.menu__notice {
+  margin: 0;
+  font-size: 11px;
+  color: var(--menu-muted);
+}
+
+.menu__link {
+  color: var(--menu-brand);
+  font-weight: 600;
+  white-space: nowrap;
+}

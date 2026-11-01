@@ -1,0 +1,57 @@
+<template>
+  <article class="menu">
+    <header class="menu__header">
+      <span class="menu__avatar">
+        <lightning-icon icon-name="standard:bot" size="small"></lightning-icon>
+      </span>
+      <div class="menu__heading">
+        <h2 class="menu__title">{assistantName}</h2>
+        <template lwc:if={tagline}>
+          <p class="menu__subtitle">{tagline}</p>
+        </template>
+      </div>
+    </header>
+
+    <div class="menu__body">
+      <template lwc:if={intro}>
+        <p class="menu__intro">{intro}</p>
+      </template>
+      <ul class="menu__grid">
+        <template for:each={items} for:item="item">
+          <li key={item.key} class="menu__topic">
+            <span class="menu__topic-icon">
+              <lightning-icon
+                icon-name={item.icon}
+                size="x-small"
+                class="menu__topic-glyph"
+              ></lightning-icon>
+            </span>
+            <span class="menu__topic-label">{item.label}</span>
+          </li>
+        </template>
+      </ul>
+    </div>
+
+    <template lwc:if={notice}>
+      <footer class="menu__footer">
+        <lightning-icon
+          icon-name="utility:lock"
+          size="xx-small"
+          class="menu__footer-icon"
+        ></lightning-icon>
+        <p class="menu__notice">
+          {notice}
+          <template lwc:if={privacyUrl}>
+            <a
+              class="menu__link"
+              href={privacyUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              >{privacyLabel}</a
+            >.
+          </template>
+        </p>
+      </footer>
+    </template>
+  </article>
+</template>
