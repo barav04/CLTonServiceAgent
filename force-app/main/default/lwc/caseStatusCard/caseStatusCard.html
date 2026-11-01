@@ -1,0 +1,35 @@
+<template>
+    <article class="slds-card slds-card_boundary">
+        <div class="slds-card__header slds-grid">
+            <header class="slds-media slds-media_center slds-has-flexi-truncate">
+                <div class="slds-media__figure">
+                    <lightning-icon icon-name="standard:case" size="small"></lightning-icon>
+                </div>
+                <div class="slds-media__body">
+                    <h2 class="slds-card__header-title">Case {caseNumber}</h2>
+                </div>
+                <div class="slds-no-flex">
+                    <span class={badgeClass}>{status}</span>
+                </div>
+            </header>
+        </div>
+        <div class="slds-card__body slds-card__body_inner">
+            <dl class="slds-list_horizontal slds-wrap">
+                <dt class="slds-item_label slds-text-color_weak">Last updated</dt>
+                <dd class="slds-item_detail">
+                    <template lwc:if={lastUpdated}>
+                        <lightning-formatted-date-time
+                            value={lastUpdated}
+                            year="numeric"
+                            month="short"
+                            day="2-digit"
+                            hour="2-digit"
+                            minute="2-digit"
+                        ></lightning-formatted-date-time>
+                    </template>
+                    <template lwc:else>—</template>
+                </dd>
+            </dl>
+        </div>
+    </article>
+</template>

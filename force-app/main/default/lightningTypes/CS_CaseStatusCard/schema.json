@@ -1,0 +1,5 @@
+{
+    "title": "Case Status Card",
+    "description": "Case number, status and last update date for a support case",
+    "lightning:type": "@apexClassType/c__CS_CaseStatusCard"
+}

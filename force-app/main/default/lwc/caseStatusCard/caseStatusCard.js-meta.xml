@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>66.0</apiVersion>
+    <isExposed>true</isExposed>
+    <masterLabel>Case Status Card</masterLabel>
+    <description>Renders the CS_CaseStatusCard Lightning Type in Agentforce responses</description>
+    <targets>
+        <target>lightning__AgentforceOutput</target>
+        <target>lightningCommunity__Page</target>
+        <target>lightningCommunity__Default</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig targets="lightning__AgentforceOutput">
+            <sourceType name="c__CS_CaseStatusCard"/>
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>
