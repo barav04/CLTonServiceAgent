@@ -18,18 +18,33 @@
       </template>
       <ul class="menu__grid">
         <template for:each={items} for:item="item">
-          <li key={item.key} class="menu__topic">
-            <span class="menu__topic-icon">
-              <lightning-icon
-                icon-name={item.icon}
-                size="x-small"
-                class="menu__topic-glyph"
-              ></lightning-icon>
-            </span>
-            <span class="menu__topic-label">{item.label}</span>
+          <li key={item.key}>
+            <button
+              type="button"
+              class={item.className}
+              title={item.prompt}
+              data-key={item.key}
+              data-prompt={item.prompt}
+              disabled={isDisabled}
+              onclick={handleTopicClick}
+            >
+              <span class="menu__topic-icon">
+                <lightning-icon
+                  icon-name={item.icon}
+                  size="x-small"
+                  class="menu__topic-glyph"
+                ></lightning-icon>
+              </span>
+              <span class="menu__topic-label">{item.label}</span>
+            </button>
           </li>
         </template>
       </ul>
+      <template lwc:if={sendError}>
+        <p class="menu__error">
+          Couldn't send that request. Please type it in the message box.
+        </p>
+      </template>
     </div>
 
     <template lwc:if={notice}>

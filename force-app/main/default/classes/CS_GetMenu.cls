@@ -2,35 +2,43 @@ public with sharing class CS_GetMenu {
   private static final List<Map<String, String>> MENU_ITEMS = new List<Map<String, String>>{
     new Map<String, String>{
       'label' => 'Software Downloads',
-      'icon' => 'utility:download'
+      'icon' => 'utility:download',
+      'prompt' => 'I need help with software downloads'
     },
     new Map<String, String>{
       'label' => 'RMA Assistance',
-      'icon' => 'utility:refresh'
+      'icon' => 'utility:refresh',
+      'prompt' => 'I need help with an RMA'
     },
     new Map<String, String>{
       'label' => 'License Assistance',
-      'icon' => 'utility:lock'
+      'icon' => 'utility:lock',
+      'prompt' => 'I need help with a license'
     },
     new Map<String, String>{
       'label' => 'Asset Information',
-      'icon' => 'utility:apps'
+      'icon' => 'utility:apps',
+      'prompt' => 'I need information about my assets'
     },
     new Map<String, String>{
       'label' => 'Account Assistance',
-      'icon' => 'utility:user'
+      'icon' => 'utility:user',
+      'prompt' => 'I need help with my account'
     },
     new Map<String, String>{
       'label' => 'Case Assistance',
-      'icon' => 'utility:case'
+      'icon' => 'utility:case',
+      'prompt' => 'I need help with a support case'
     },
     new Map<String, String>{
       'label' => 'Knowledge Search',
-      'icon' => 'utility:knowledge_base'
+      'icon' => 'utility:knowledge_base',
+      'prompt' => 'I want to search the knowledge base'
     },
     new Map<String, String>{
       'label' => 'Service Contract',
-      'icon' => 'utility:file'
+      'icon' => 'utility:file',
+      'prompt' => 'I need help with my service contract'
     }
   };
 

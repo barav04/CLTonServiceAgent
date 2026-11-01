@@ -6,7 +6,11 @@ const PAYLOAD = {
   tagline: "AI-based guide - understands and responds in many languages",
   intro: "I can help you with these topics and more:",
   itemsJson: JSON.stringify([
-    { label: "Software Downloads", icon: "utility:download" },
+    {
+      label: "Software Downloads",
+      icon: "utility:download",
+      prompt: "I need help with software downloads"
+    },
     { label: "RMA Assistance", icon: "utility:refresh" }
   ]),
   notice:
@@ -42,5 +46,55 @@ describe("c-menu-card", () => {
     const el = createElement("c-menu-card", { is: MenuCard });
     document.body.appendChild(el);
     expect(el.shadowRoot.querySelectorAll(".menu__topic")).toHaveLength(0);
+  });
+
+  function renderWithConfiguration(sendTextMessage) {
+    const el = createElement("c-menu-card", { is: MenuCard });
+    el.value = PAYLOAD;
+    el.configuration = { util: { sendTextMessage } };
+    document.body.appendChild(el);
+    return el;
+  }
+
+  it("sends the topic prompt as a message when a topic is clicked", async () => {
+    const sendTextMessage = jest.fn().mockResolvedValue(undefined);
+    const el = renderWithConfiguration(sendTextMessage);
+
+    const [downloads, rma] = el.shadowRoot.querySelectorAll(".menu__topic");
+    downloads.click();
+    rma.click();
+    await Promise.resolve();
+
+    expect(sendTextMessage).toHaveBeenNthCalledWith(
+      1,
+      "I need help with software downloads"
+    );
+    // Falls back to the label when an item has no prompt.
+    expect(sendTextMessage).toHaveBeenNthCalledWith(2, "RMA Assistance");
+    expect(rma.classList).toContain("menu__topic_selected");
+  });
+
+  it("shows an error when sending fails", async () => {
+    const el = renderWithConfiguration(
+      jest.fn().mockRejectedValue(new Error("offline"))
+    );
+
+    el.shadowRoot.querySelector(".menu__topic").click();
+    // Let the rejected promise's catch handler run and the template re-render.
+    for (let i = 0; i < 3; i++) {
+      // eslint-disable-next-line no-await-in-loop
+      await Promise.resolve();
+    }
+
+    expect(el.shadowRoot.querySelector(".menu__error")).not.toBeNull();
+  });
+
+  it("disables topics when the chat runtime is not available", () => {
+    const el = createElement("c-menu-card", { is: MenuCard });
+    el.value = PAYLOAD;
+    document.body.appendChild(el);
+
+    const topic = el.shadowRoot.querySelector(".menu__topic");
+    expect(topic.disabled).toBe(true);
   });
 });

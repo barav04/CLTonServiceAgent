@@ -1,7 +1,7 @@
 :host {
-  --menu-brand: #0b5cab;
-  --menu-brand-dark: #032d60;
-  --menu-tint: #eef4ff;
+  --menu-brand: #2e844a;
+  --menu-brand-dark: #194e31;
+  --menu-tint: #ebf7e6;
   --menu-border: #dfe3ea;
   --menu-text: #181818;
   --menu-muted: #5c6470;
@@ -13,7 +13,7 @@
   border: 1px solid var(--menu-border);
   border-radius: 12px;
   background: #ffffff;
-  box-shadow: 0 2px 6px rgba(3, 45, 96, 0.08);
+  box-shadow: 0 2px 6px rgba(25, 78, 49, 0.1);
   color: var(--menu-text);
   font-size: 13px;
   line-height: 1.4;
@@ -77,11 +77,37 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  width: 100%;
   min-width: 0;
   padding: 8px;
   border: 1px solid var(--menu-border);
   border-radius: 8px;
   background: #fafbfc;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.menu__topic:hover:not(:disabled),
+.menu__topic:focus-visible {
+  border-color: var(--menu-brand);
+  background: var(--menu-tint);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(46, 132, 74, 0.2);
+}
+
+.menu__topic_selected {
+  border-color: var(--menu-brand);
+  background: var(--menu-tint);
+}
+
+.menu__topic:disabled {
+  cursor: default;
 }
 
 .menu__topic-icon {
@@ -103,6 +129,12 @@
   font-size: 12px;
   font-weight: 600;
   overflow-wrap: anywhere;
+}
+
+.menu__error {
+  margin: 8px 0 0;
+  font-size: 11px;
+  color: #ba0517;
 }
 
 .menu__footer {
