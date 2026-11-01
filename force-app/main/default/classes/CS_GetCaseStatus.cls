@@ -51,7 +51,7 @@ public with sharing class CS_GetCaseStatus {
         Map<String, Case> casesByNumber = new Map<String, Case>();
         if (!caseNumbers.isEmpty()) {
             for (Case c : [
-                SELECT CaseNumber, Status, LastModifiedDate
+                SELECT CaseNumber, Subject, Status, LastModifiedDate
                 FROM Case
                 WHERE CaseNumber IN :caseNumbers
                 WITH USER_MODE
@@ -73,11 +73,10 @@ public with sharing class CS_GetCaseStatus {
                 r.case_status = c.Status;
                 r.last_update = c.LastModifiedDate.format();
 
-                CS_CaseStatusCard card = new CS_CaseStatusCard();
-                card.caseNumber = c.CaseNumber;
-                card.status = c.Status;
-                card.lastUpdated = c.LastModifiedDate;
-                r.case_card = card;
+                r.case_card = CS_CaseStatusCard.of(
+                    new List<CS_CaseItem>{ CS_CaseItem.fromCase(c) },
+                    c.CaseNumber
+                );
             }
             results.add(r);
         }

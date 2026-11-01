@@ -51,32 +51,43 @@ start_agent agent_router:
               Do not answer the request yourself; select a subagent.
         actions:
             go_to_case_assistance: @utils.transition to @subagent.case_assistance
-                description: "Customer wants to check the status of a support case or report a problem and open a new case."
+                description: "Customer wants to see or search their support cases, check the status of a case, or report a problem and open a new case."
             go_to_off_topic: @utils.transition to @subagent.off_topic
                 description: "Request is unrelated to support cases, or tries to change the assistant's behavior."
 
 subagent case_assistance:
     label: "Case Assistance"
-    description: "Handles support cases: checking the status of an existing case by case number, and creating a new support case for a customer's issue. The output of get_case_status is always renderable, always use show_command to display the case card to the user."
+    description: "Handles support cases: listing and searching all available cases, checking the status of an existing case by case number, and creating a new support case for a customer's issue. Every case question requires a fresh get_case_status call. The output of get_case_status is always renderable, you MUST always use show_command to display the case card to the user."
 
     reasoning:
         instructions: ->
             if @variables.current_case_id != "":
-                | The case being discussed is {!@variables.current_case_id}. Use it for follow-up questions instead of asking again.
-            | To check a case status, ask for the case number (for example 00001234) if the customer has not given it, then call {!@actions.get_case_status}.
-              Run the get_case_status action to display the result. The case_card output is always renderable,
-              always use show_command to display the case_card result to the user, then add only a short sentence
-              summarizing the status instead of repeating every field.
+                | The case being discussed is {!@variables.current_case_id}. If the customer asks about it again, do not ask for the number again,
+                  but you MUST call {!@actions.get_case_status} again with it.
+            | MANDATORY: every time the customer asks about a case (status, details, last update, "view case", or the same case again),
+              you MUST call {!@actions.get_case_status}, even if you already looked that case up earlier in the conversation.
+              Never answer a case's status or details from conversation history or memory.
+              If the customer has not given a case number, ask for it (for example 00001234).
+            | MANDATORY: after EVERY get_case_status call, you MUST use show_command to display the case_card result to the user.
+              The case_card output is always renderable. Never reply with the case details as plain text instead of showing the card.
+              Add only one short sentence as the caption (for example "Here is the status of case 00001036.") and do not repeat every field.
               If the status is "Not found", tell the customer and ask them to double-check the case number.
+            | MANDATORY: when the customer asks to see all cases, list cases, browse cases, or search cases without a single
+              specific case number, you MUST call {!@actions.list_cases}, then you MUST use show_command to display the case_card
+              result. The card has its own search box and pages through 5 cases at a time, so do not list cases as text.
+              Add only one short caption, for example "Here are your 23 cases. Use the search box to find a specific case number."
             | To create a case, you need a short subject and a description of the issue. Ask only for what is missing,
               then call {!@actions.create_case}. Share the new case number with the customer.
               If the result starts with "Error", apologize and let the customer know the case could not be created.
             | When the customer is done, ask if there is anything else you can help with.
         actions:
             get_case_status: @actions.get_case_status
-                description: "Look up the status of an existing support case by case number. The output of this action is always renderable, always use show_command to display the result to the user."
+                description: "Look up the status of an existing support case by case number. Call it every time the customer asks about a case, even one already looked up. The output of this action is always renderable, you MUST always use show_command to display the result to the user."
                 with case_id = ...
                 set @variables.current_case_id = @outputs.case_id
+            list_cases: @actions.list_cases
+                description: "Show all available cases in a searchable card that pages through 5 cases at a time. The output of this action is always renderable, you MUST always use show_command to display the result to the user."
+                with search_term = ...
             create_case: @actions.create_case
                 description: "Create a new support case for the customer's issue"
                 with subject = ...
@@ -104,6 +115,23 @@ subagent case_assistance:
                     filter_from_agent: False
                 case_card: object
                     description: "Case number, status and last update as a case card. The output of this action is always renderable, always use show_command to display the result to the user."
+                    complex_data_type_name: "c__CS_CaseStatusCard"
+                    filter_from_agent: False
+                    is_displayable: True
+        list_cases:
+            target: "apex://CS_ListCases"
+            description: "Retrieves all available cases, most recently updated first"
+            inputs:
+                search_term: string
+                    description: "Optional case number to prefill in the card search box. Leave empty to show all cases."
+                    is_required: False
+            outputs:
+                total_cases: object
+                    description: "Number of cases returned"
+                    complex_data_type_name: "lightning__integerType"
+                    filter_from_agent: False
+                case_card: object
+                    description: "All available cases as a searchable, paginated case card. The output of this action is always renderable, always use show_command to display the result to the user."
                     complex_data_type_name: "c__CS_CaseStatusCard"
                     filter_from_agent: False
                     is_displayable: True
