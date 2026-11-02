@@ -1,0 +1,577 @@
+<apex:page
+  showHeader="false"
+  sidebar="false"
+  standardStylesheets="false"
+  applyHtmlTag="false"
+  applyBodyTag="false"
+  docType="html-5.0"
+>
+  <html lang="en">
+    <head>
+      <meta charset="utf-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1" />
+      <title>digi1</title>
+      <style>
+        :root {
+          /* White to match the chat's message area, so the embedded chat has no visible edge. */
+          --page: #ffffff;
+          /* Height of the Enhanced Chat header bar ("digi1 ⋮") that is cropped out in the conversation view. */
+          --chat-header-height: 57px;
+          --surface: #ffffff;
+          --ink: #1f1e1d;
+          --muted: #6b6a66;
+          --line: #e5e2d9;
+          --accent: #2e844a;
+          --accent-dark: #194e31;
+          --error: #ba0517;
+        }
+
+        * {
+          box-sizing: border-box;
+        }
+
+        html,
+        body {
+          margin: 0;
+          height: 100%;
+        }
+
+        body {
+          display: flex;
+          flex-direction: column;
+          min-height: 100vh;
+          background: var(--page);
+          color: var(--ink);
+          font-family:
+            -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+            Arial, sans-serif;
+        }
+
+        .top {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 14px 20px;
+        }
+
+        .brand {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          font-family: ui-serif, Georgia, "Times New Roman", serif;
+          font-size: 20px;
+          font-weight: 600;
+        }
+
+        .brand__mark {
+          width: 22px;
+          height: 22px;
+          color: var(--accent);
+        }
+
+        .link-button {
+          border: 1px solid var(--line);
+          border-radius: 8px;
+          background: var(--surface);
+          color: var(--ink);
+          padding: 6px 12px;
+          font: inherit;
+          font-size: 13px;
+          cursor: pointer;
+        }
+
+        .link-button:hover {
+          border-color: var(--accent);
+        }
+
+        main {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          min-height: 0;
+          padding: 0 16px;
+        }
+
+        /* Landing: greeting + single input, vertically centered. */
+        #landing {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          width: min(720px, 100%);
+          padding-bottom: 8vh;
+        }
+
+        .greet {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          margin: 0 0 28px;
+          font-family: ui-serif, Georgia, "Times New Roman", serif;
+          font-size: clamp(26px, 4vw, 38px);
+          font-weight: 400;
+          text-align: center;
+        }
+
+        .greet .brand__mark {
+          width: 34px;
+          height: 34px;
+          flex-shrink: 0;
+        }
+
+        .composer {
+          display: flex;
+          align-items: flex-end;
+          gap: 8px;
+          width: 100%;
+          padding: 14px 14px 14px 18px;
+          border: 1px solid var(--line);
+          border-radius: 20px;
+          background: var(--surface);
+          box-shadow: 0 4px 20px rgba(31, 30, 29, 0.06);
+          transition:
+            border-color 0.15s ease,
+            box-shadow 0.15s ease;
+        }
+
+        .composer:focus-within {
+          border-color: #cfcabc;
+          box-shadow: 0 6px 24px rgba(31, 30, 29, 0.1);
+        }
+
+        .composer textarea {
+          flex: 1;
+          min-height: 28px;
+          max-height: 200px;
+          border: 0;
+          outline: 0;
+          resize: none;
+          background: transparent;
+          color: var(--ink);
+          font: inherit;
+          font-size: 16px;
+          line-height: 1.5;
+        }
+
+        .composer textarea::placeholder {
+          color: #9b998f;
+        }
+
+        .send {
+          display: inline-flex;
+          flex-shrink: 0;
+          align-items: center;
+          justify-content: center;
+          width: 36px;
+          height: 36px;
+          border: 0;
+          border-radius: 10px;
+          background: var(--accent);
+          color: #ffffff;
+          cursor: pointer;
+        }
+
+        .send:hover {
+          background: var(--accent-dark);
+        }
+        .send:disabled {
+          background: #cfcabc;
+          cursor: default;
+        }
+        .send svg {
+          width: 18px;
+          height: 18px;
+        }
+
+        .chips {
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: center;
+          gap: 8px;
+          margin-top: 16px;
+        }
+
+        .chip {
+          border: 1px solid var(--line);
+          border-radius: 999px;
+          background: transparent;
+          color: var(--muted);
+          padding: 7px 14px;
+          font: inherit;
+          font-size: 13px;
+          cursor: pointer;
+        }
+
+        .chip:hover {
+          border-color: var(--accent);
+          color: var(--ink);
+          background: var(--surface);
+        }
+
+        .status {
+          min-height: 20px;
+          margin: 12px 0 0;
+          font-size: 13px;
+          color: var(--muted);
+        }
+        .status.is-error {
+          color: var(--error);
+        }
+
+        /* Conversation: Enhanced Chat renders inline into #digi1-chat. While on the landing
+           view it is kept rendered but off-screen so the conversation can start in the background. */
+        #conversation {
+          position: absolute;
+          left: -10000px;
+          top: 0;
+          width: 720px;
+          height: 640px;
+          visibility: hidden;
+        }
+
+        #digi1-chat {
+          width: 100%;
+          height: 100%;
+        }
+
+        body.is-chatting #landing {
+          display: none;
+        }
+
+        body.is-chatting main {
+          padding: 0;
+        }
+
+        body.is-chatting #conversation {
+          position: static;
+          flex: 1;
+          width: 100%;
+          height: auto;
+          min-height: 0;
+          visibility: visible;
+          padding-bottom: 8px;
+        }
+
+        /* No frame around the chat: it reads as part of the page. The iframe is shifted up
+           inside a clipping container to hide the chat's own header bar. */
+        body.is-chatting #digi1-chat {
+          position: relative;
+          height: calc(100vh - 100px);
+          overflow: hidden;
+          background: var(--page);
+        }
+
+        body.is-chatting #digi1-chat iframe {
+          display: block;
+          width: 100% !important;
+          height: calc(100% + var(--chat-header-height)) !important;
+          margin-top: calc(-1 * var(--chat-header-height)) !important;
+          border: 0 !important;
+          border-radius: 0 !important;
+          box-shadow: none !important;
+        }
+
+        .top__actions {
+          display: flex;
+          gap: 8px;
+        }
+        #new-chat {
+          display: none;
+        }
+        body.is-chatting #new-chat {
+          display: inline-block;
+        }
+
+        footer {
+          padding: 8px 16px 16px;
+          text-align: center;
+          font-size: 12px;
+          color: var(--muted);
+        }
+      </style>
+    </head>
+    <body class="is-chatting">
+      <header class="top">
+        <span class="brand">
+          <svg class="brand__mark" viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              fill="currentColor"
+              d="M12 2l1.9 6.1L20 10l-6.1 1.9L12 18l-1.9-6.1L4 10l6.1-1.9z"
+            />
+          </svg>
+          digi1
+        </span>
+        <span class="top__actions">
+          <button type="button" class="link-button" id="new-chat">
+            New chat
+          </button>
+          <button type="button" class="link-button" id="toggle-view">
+            Back to start
+          </button>
+        </span>
+      </header>
+
+      <main>
+        <section id="landing" aria-label="Ask digi1">
+          <h1 class="greet">
+            <svg class="brand__mark" viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                fill="currentColor"
+                d="M12 2l1.9 6.1L20 10l-6.1 1.9L12 18l-1.9-6.1L4 10l6.1-1.9z"
+              />
+            </svg>
+            How can I help you today?
+          </h1>
+
+          <form class="composer" id="composer">
+            <textarea
+              id="prompt"
+              rows="1"
+              placeholder='Ask about a case, or say "main menu"'
+              aria-label="Message digi1"
+            ></textarea>
+            <button
+              type="submit"
+              class="send"
+              id="send"
+              aria-label="Send"
+              disabled="disabled"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  fill="currentColor"
+                  d="M12 4l7 7-1.4 1.4L13 7.8V20h-2V7.8l-4.6 4.6L5 11z"
+                />
+              </svg>
+            </button>
+          </form>
+
+          <div class="chips">
+            <button type="button" class="chip" data-prompt="main menu">
+              Main menu
+            </button>
+            <button
+              type="button"
+              class="chip"
+              data-prompt="show me all my cases"
+            >
+              Show my cases
+            </button>
+            <button type="button" class="chip" data-prompt="view case 00001036">
+              Check a case
+            </button>
+            <button
+              type="button"
+              class="chip"
+              data-prompt="I want to open a new support case"
+            >
+              Open a new case
+            </button>
+          </div>
+
+          <p class="status" id="status" role="status">Connecting to digi1…</p>
+        </section>
+
+        <section id="conversation" aria-label="Conversation with digi1">
+          <div id="digi1-chat"></div>
+        </section>
+      </main>
+
+      <footer>
+        digi1 is an AI assistant and can make mistakes. Conversations may be
+        monitored and recorded.
+      </footer>
+
+      <script type="text/javascript">
+        // Agent context variables sent with the first message, e.g.
+        // { name: "CEC_AI_User_Type", value: { valueType: "TextValue", textValue: "Customer" } }
+        // Each name must match an agent variable that has API write access.
+        var CONTEXT_VARIABLES = [];
+
+        var ORG_ID = "00Dak00000qqW97";
+
+        // Sent automatically when the chat is ready, so every page load opens on the main menu card.
+        var AUTO_PROMPT = "main menu";
+        // A message sent before digi1 has joined the new conversation is not answered, and the
+        // page gets no event for the join, so the automatic prompt waits this long after ready.
+        var AUTO_PROMPT_DELAY_MS = 6000;
+
+        // Forget the previous conversation before the chat script loads, so every page load
+        // starts a new conversation instead of resuming the last one.
+        try {
+          localStorage.removeItem(ORG_ID + "_WEB_STORAGE");
+        } catch (e) {
+          /* storage unavailable */
+        }
+
+        var ready = false;
+        var pendingPrompt = null;
+        var body = document.body;
+        var prompt = document.getElementById("prompt");
+        var send = document.getElementById("send");
+        var statusEl = document.getElementById("status");
+        var toggle = document.getElementById("toggle-view");
+
+        function setStatus(text, isError) {
+          statusEl.textContent = text || "";
+          statusEl.classList.toggle("is-error", !!isError);
+        }
+
+        function showConversation(show) {
+          body.classList.toggle("is-chatting", show);
+          toggle.textContent = show ? "Back to start" : "Open conversation";
+        }
+
+        function autoGrow() {
+          prompt.style.height = "auto";
+          prompt.style.height = Math.min(prompt.scrollHeight, 200) + "px";
+          send.disabled = !prompt.value.trim();
+        }
+
+        function ask(text) {
+          text = (text || "").trim();
+          if (!text) {
+            return;
+          }
+          if (!ready) {
+            pendingPrompt = text;
+            setStatus(
+              "Connecting to digi1… your message will be sent shortly."
+            );
+            return;
+          }
+          send.disabled = true;
+          setStatus("Sending…");
+          sendWhenConversationReady(text, SEND_ATTEMPTS)
+            .then(function () {
+              prompt.value = "";
+              autoGrow();
+              setStatus("");
+              showConversation(true);
+            })
+            .catch(function (err) {
+              console.error("digi1 sendTextMessage failed", err);
+              setStatus(
+                "Couldn't reach digi1. Open the conversation and type your message there.",
+                true
+              );
+              send.disabled = false;
+            });
+        }
+
+        // onEmbeddedMessagingReady fires before a new conversation exists, and sendTextMessage
+        // rejects until it does, so retry for up to SEND_ATTEMPTS * SEND_RETRY_MS.
+        var SEND_ATTEMPTS = 20;
+        var SEND_RETRY_MS = 1500;
+
+        function sendWhenConversationReady(text, attemptsLeft) {
+          var util = embeddedservice_bootstrap.utilAPI;
+          var sent = CONTEXT_VARIABLES.length
+            ? util.sendTextMessage(text, CONTEXT_VARIABLES)
+            : util.sendTextMessage(text);
+          return Promise.resolve(sent).catch(function (err) {
+            if (attemptsLeft <= 1) {
+              throw err;
+            }
+            return new Promise(function (resolve) {
+              setTimeout(resolve, SEND_RETRY_MS);
+            }).then(function () {
+              return sendWhenConversationReady(text, attemptsLeft - 1);
+            });
+          });
+        }
+
+        document
+          .getElementById("composer")
+          .addEventListener("submit", function (event) {
+            event.preventDefault();
+            ask(prompt.value);
+          });
+
+        prompt.addEventListener("input", autoGrow);
+        prompt.addEventListener("keydown", function (event) {
+          if (event.key === "Enter" && !event.shiftKey) {
+            event.preventDefault();
+            ask(prompt.value);
+          }
+        });
+
+        Array.prototype.forEach.call(
+          document.querySelectorAll(".chip"),
+          function (chip) {
+            chip.addEventListener("click", function () {
+              ask(chip.getAttribute("data-prompt"));
+            });
+          }
+        );
+
+        toggle.addEventListener("click", function () {
+          showConversation(!body.classList.contains("is-chatting"));
+        });
+
+        // Ends the current conversation (the chat's own End option is in the cropped header),
+        // then reloads to a fresh start view.
+        document
+          .getElementById("new-chat")
+          .addEventListener("click", function () {
+            var restart = function () {
+              try {
+                localStorage.removeItem(ORG_ID + "_WEB_STORAGE");
+              } catch (e) {
+                /* storage unavailable */
+              }
+              window.location.reload();
+            };
+            try {
+              Promise.resolve(
+                embeddedservice_bootstrap.userVerificationAPI.clearSession(true)
+              ).then(restart, restart);
+            } catch (e) {
+              restart();
+            }
+          });
+
+        window.addEventListener("onEmbeddedMessagingReady", function () {
+          ready = true;
+          setStatus("");
+          var queued = pendingPrompt || AUTO_PROMPT;
+          pendingPrompt = null;
+          setTimeout(function () {
+            ask(queued);
+          }, AUTO_PROMPT_DELAY_MS);
+        });
+
+        function initEmbeddedMessaging() {
+          try {
+            embeddedservice_bootstrap.settings.language = "en_US";
+            embeddedservice_bootstrap.settings.displayMode = "inline";
+            embeddedservice_bootstrap.settings.targetElement =
+              document.getElementById("digi1-chat");
+
+            embeddedservice_bootstrap.init(
+              ORG_ID,
+              "digi1_Web",
+              "https://personal-32e-dev-ed.develop.my.site.com/ESWdigi1Web1793472238256",
+              {
+                scrt2URL:
+                  "https://personal-32e-dev-ed.develop.my.salesforce-scrt.com"
+              }
+            );
+          } catch (err) {
+            console.error("Error loading Embedded Messaging: ", err);
+            setStatus("Couldn't load the chat. Please refresh the page.", true);
+          }
+        }
+
+        prompt.focus();
+      </script>
+      <script
+        type="text/javascript"
+        src="https://personal-32e-dev-ed.develop.my.site.com/ESWdigi1Web1793472238256/assets/js/bootstrap.min.js"
+        onload="initEmbeddedMessaging()"
+      ></script>
+    </body>
+  </html>
+</apex:page>
