@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>digi1</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="top">
+      <span class="brand">
+        <svg class="brand__mark" viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            fill="currentColor"
+            d="M12 2l1.9 6.1L20 10l-6.1 1.9L12 18l-1.9-6.1L4 10l6.1-1.9z"
+          />
+        </svg>
+        digi1
+      </span>
+      <span class="top__actions">
+        <button type="button" class="link-button" id="new-chat">
+          New chat
+        </button>
+        <button type="button" class="link-button" id="toggle-view">
+          Open conversation
+        </button>
+      </span>
+    </header>
+
+    <main>
+      <section id="landing" aria-label="Ask digi1">
+        <h1 class="greet">
+          <svg class="brand__mark" viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              fill="currentColor"
+              d="M12 2l1.9 6.1L20 10l-6.1 1.9L12 18l-1.9-6.1L4 10l6.1-1.9z"
+            />
+          </svg>
+          How can I help you today?
+        </h1>
+
+        <form class="composer" id="composer">
+          <textarea
+            id="prompt"
+            rows="1"
+            placeholder='Ask about a case, or say "main menu"'
+            aria-label="Message digi1"
+          ></textarea>
+          <button
+            type="submit"
+            class="send"
+            id="send"
+            aria-label="Send"
+            disabled
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                fill="currentColor"
+                d="M12 4l7 7-1.4 1.4L13 7.8V20h-2V7.8l-4.6 4.6L5 11z"
+              />
+            </svg>
+          </button>
+        </form>
+
+        <div class="chips">
+          <button type="button" class="chip" data-prompt="main menu">
+            Main menu
+          </button>
+          <button type="button" class="chip" data-prompt="show me all my cases">
+            Show my cases
+          </button>
+          <button type="button" class="chip" data-prompt="view case 00001036">
+            Check a case
+          </button>
+          <button
+            type="button"
+            class="chip"
+            data-prompt="I want to open a new support case"
+          >
+            Open a new case
+          </button>
+        </div>
+
+        <p class="status" id="status" role="status">Connecting to digi1…</p>
+      </section>
+
+      <section id="conversation" aria-label="Conversation with digi1">
+        <div id="digi1-chat"></div>
+      </section>
+    </main>
+
+    <footer>
+      digi1 is an AI assistant and can make mistakes. Conversations may be
+      monitored and recorded.
+    </footer>
+
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>

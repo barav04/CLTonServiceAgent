@@ -1,0 +1,283 @@
+:root {
+  /* White to match the chat's message area, so the embedded chat has no visible edge. */
+  --page: #ffffff;
+  /* Height of the Enhanced Chat header bar that is cropped out in the conversation view. */
+  --chat-header-height: 57px;
+  --surface: #ffffff;
+  --ink: #1f1e1d;
+  --muted: #6b6a66;
+  --line: #e5e2d9;
+  --accent: #2e844a;
+  --accent-dark: #194e31;
+  --error: #ba0517;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: var(--page);
+  color: var(--ink);
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
+    sans-serif;
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: ui-serif, Georgia, "Times New Roman", serif;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.brand__mark {
+  width: 22px;
+  height: 22px;
+  color: var(--accent);
+}
+
+.top__actions {
+  display: flex;
+  gap: 8px;
+}
+
+.link-button {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--ink);
+  padding: 6px 12px;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.link-button:hover {
+  border-color: var(--accent);
+}
+
+main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 0;
+  padding: 0 16px;
+}
+
+/* Landing: greeting + single input, vertically centered. */
+#landing {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: min(720px, 100%);
+  padding-bottom: 8vh;
+}
+
+.greet {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 28px;
+  font-family: ui-serif, Georgia, "Times New Roman", serif;
+  font-size: clamp(26px, 4vw, 38px);
+  font-weight: 400;
+  text-align: center;
+}
+
+.greet .brand__mark {
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+}
+
+.composer {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  width: 100%;
+  padding: 14px 14px 14px 18px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: var(--surface);
+  box-shadow: 0 4px 20px rgba(31, 30, 29, 0.06);
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.composer:focus-within {
+  border-color: #cfcabc;
+  box-shadow: 0 6px 24px rgba(31, 30, 29, 0.1);
+}
+
+.composer textarea {
+  flex: 1;
+  min-height: 28px;
+  max-height: 200px;
+  border: 0;
+  outline: 0;
+  resize: none;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.composer textarea::placeholder {
+  color: #9b998f;
+}
+
+.send {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--accent);
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.send:hover {
+  background: var(--accent-dark);
+}
+
+.send:disabled {
+  background: #cfcabc;
+  cursor: default;
+}
+
+.send svg {
+  width: 18px;
+  height: 18px;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.chip {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  padding: 7px 14px;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.chip:hover {
+  border-color: var(--accent);
+  color: var(--ink);
+  background: var(--surface);
+}
+
+.status {
+  min-height: 20px;
+  margin: 12px 0 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.status.is-error {
+  color: var(--error);
+}
+
+/* Conversation: Enhanced Chat renders inline into #digi1-chat. While on the landing view
+   it is kept rendered but off-screen so the conversation can start in the background. */
+#conversation {
+  position: absolute;
+  left: -10000px;
+  top: 0;
+  width: 720px;
+  height: 640px;
+  visibility: hidden;
+}
+
+#digi1-chat {
+  width: 100%;
+  height: 100%;
+}
+
+body.is-chatting #landing {
+  display: none;
+}
+
+body.is-chatting main {
+  padding: 0;
+}
+
+body.is-chatting #conversation {
+  position: static;
+  flex: 1;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  visibility: visible;
+  padding-bottom: 8px;
+}
+
+/* No frame around the chat: it reads as part of the page. The iframe is shifted up
+   inside a clipping container to hide the chat's own header bar. */
+body.is-chatting #digi1-chat {
+  position: relative;
+  height: calc(100vh - 100px);
+  overflow: hidden;
+  background: var(--page);
+}
+
+body.is-chatting #digi1-chat iframe {
+  display: block;
+  width: 100% !important;
+  height: calc(100% + var(--chat-header-height)) !important;
+  margin-top: calc(-1 * var(--chat-header-height)) !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+#new-chat {
+  display: none;
+}
+
+body.is-chatting #new-chat {
+  display: inline-block;
+}
+
+footer {
+  padding: 8px 16px 16px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--muted);
+}
